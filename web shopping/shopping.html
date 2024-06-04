@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PureEats</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app" v-cloak>
+        <div class="navbar">
+            <div class="navbar-left">
+                <h1>PureEats</h1>
+            </div>
+            <div class="navbar-right">
+                <input type="text" v-model="searchQuery" @input="filterProducts" placeholder="Search...">
+                <img src="carlogo.png" alt="Cart" @click="toggleCart">
+            </div>
+        </div>
+        <div class="catalog">
+            <!-- Product Catalog - Top -->
+            <div v-for="(product, index) in filteredProducts.slice(0, 3)" :key="index" class="product">
+                <img :src="product.image" :alt="product.name" @click="showProductDetails(product)">
+                <h3>{{ product.name }}</h3>
+                <p>Rp {{ product.price.toLocaleString() }}</p> <!-- Format harga menggunakan Rupiah -->
+                <div class="rating">
+                    <span v-for="n in 5" :key="n" class="star" :class="{'filled': n <= product.rating}">★</span>
+                    <span>({{ product.rating.toFixed(1) }})</span>
+                </div>
+                <p>Stock: {{ product.stock }}</p>
+                <button @click="addToCart(product)" :disabled="product.stock === 0">Add to Cart</button>
+            </div>
+        </div>
+        <div class="catalog">
+            <!-- Product Catalog - Bottom -->
+            <div v-for="(product, index) in filteredProducts.slice(3, 6)" :key="index + 3" class="product">
+                <img :src="product.image" :alt="product.name" @click="showProductDetails(product)">
+                <h3>{{ product.name }}</h3>
+                <p>Rp {{ product.price.toLocaleString() }}</p> <!-- Format harga menggunakan Rupiah -->
+                <div class="rating">
+                    <span v-for="n in 5" :key="n" class="star" :class="{'filled': n <= product.rating}">★</span>
+                    <span>({{ product.rating.toFixed(1) }})</span>
+                </div>
+                <p>Stock: {{ product.stock }}</p>
+                <button @click="addToCart(product)" :disabled="product.stock === 0">Add to Cart</button>
+            </div>
+        </div>
+        <transition name="slide-up">
+            <div v-if="showProductModal" class="product-modal">
+                <!-- Product Modal Content -->
+                <div class="modal-content">
+                    <span class="close" @click="closeProductDetails">&times;</span>
+                    <h2>{{ selectedProduct.name }}</h2>
+                    <img :src="selectedProduct.image" :alt="selectedProduct.name">
+                    <p>{{ selectedProduct.description }}</p>
+                    <p>Rp {{ selectedProduct.price.toLocaleString() }}</p> <!-- Format harga menggunakan Rupiah -->
+                    <p>Stock: {{ selectedProduct.stock }}</p>
+                    <button @click="addToCart(selectedProduct)" :disabled="selectedProduct.stock === 0">Add to Cart</button>
+                </div>
+            </div>
+        </transition>
+        <transition name="slide-up">
+            <div v-if="showCart" class="cart">
+                <!-- Cart Content -->
+                <h2>Your Cart</h2>
+                <button class="close-cart" @click="toggleCart">X</button> <!-- Close button -->
+                <div v-for="(item, index) in cartItems" :key="index" class="cart-item">
+                    <div class="item-image">
+                        <img :src="item.image" :alt="item.name">
+                    </div>
+                    <div class="item-details">
+                        <p>{{ item.name }}</p>
+                        <p>Rp {{ item.price.toLocaleString() }}</p> <!-- Format harga menggunakan Rupiah -->
+                    </div>
+                    <div class="quantity-controls">
+                        <button @click="decreaseQuantity(item)">-</button>
+                        <span>{{ item.quantity }}</span>
+                        <button @click="increaseQuantity(item)">+</button>
+                    </div>
+                </div>
+                <div class="total-price">
+                    <p>Total: Rp {{ getTotalPrice.toLocaleString() }}</p> <!-- Format harga menggunakan Rupiah -->
+                </div>
+                <button @click="proceedToCheckout">Proceed to Checkout</button>
+            </div>
+        </transition>
+        <!-- Overlay -->
+        <div class="overlay" :class="{ 'active': showProductModal || showCart }"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
